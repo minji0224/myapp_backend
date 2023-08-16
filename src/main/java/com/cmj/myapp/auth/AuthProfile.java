@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AuthProfile {
     private long id;
+    private String email;
     private String nickname;
-    private String username;
 }

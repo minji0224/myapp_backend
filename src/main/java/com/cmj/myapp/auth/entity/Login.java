@@ -1,4 +1,4 @@
-package com.cmj.myapp.entity;
+package com.cmj.myapp.auth.entity;
 
 
 import jakarta.persistence.*;

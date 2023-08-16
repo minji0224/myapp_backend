@@ -1,4 +1,4 @@
-package com.cmj.myapp.util;
+package com.cmj.myapp.auth.util;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
