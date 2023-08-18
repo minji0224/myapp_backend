@@ -1,10 +1,16 @@
 package com.cmj.myapp.auth.entity;
 
+import com.cmj.myapp.post.Post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -19,8 +25,11 @@ public class Profile {
     private String nickname;
 
     @OneToOne
-    private Login login;
+    @JoinColumn(name = "user_id")
+    private User user;
 
-//    @OneToMany
-//    private List<Post> postLists = new ArrayList<>();
+    @Fetch(FetchMode.SUBSELECT)
+    @OneToMany
+    private List<Post> postList = new ArrayList<>();
+
 }

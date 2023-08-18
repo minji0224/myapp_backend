@@ -1,5 +1,7 @@
 package com.cmj.myapp.post;
 
+import com.cmj.myapp.auth.entity.Profile;
+import com.cmj.myapp.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +11,11 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +30,13 @@ public class Post {
     // 이미지 길이 정하기
     private long createdTime;
     private int likeCnt;
+
+
+    private long profileId;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "profile_id")
+//    private Profile profile;
 
 
 

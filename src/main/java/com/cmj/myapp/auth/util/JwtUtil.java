@@ -31,15 +31,16 @@ public class JwtUtil {
     }
 
     public AuthProfile validateToken(String token) {
-        Algorithm algorithm = Algorithm.HMAC256(sign);
-        JWTVerifier jwtVerifier = JWT.require(algorithm).build(); // 검증객체
+        Algorithm algorithm = Algorithm.HMAC256(sign); // Jwt알고리즘 설정 및 시크릿키 사용하여 객체 생성
+        JWTVerifier jwtVerifier = JWT.require(algorithm).build(); // 검증객체생성
 
         try {
             DecodedJWT decodedJWT = jwtVerifier.verify(token);
+            // decodedJWT 객체에서 필요한 정보 추출하고
             Long id = Long.valueOf(decodedJWT.getSubject());
             String email = decodedJWT.getClaim("email").asString();
             String nickname = decodedJWT.getClaim("nickname").asString();
-
+            // 추출한 정보로 AuthProfile 객체 생성
             return  AuthProfile.builder().id(id).email(email).nickname(nickname).build();
         } catch (JWTVerificationException e) {
             return null;
