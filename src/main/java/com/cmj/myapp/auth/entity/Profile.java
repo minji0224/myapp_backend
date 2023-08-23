@@ -28,8 +28,8 @@ public class Profile {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Fetch(FetchMode.SUBSELECT)
-    @OneToMany
-    private List<Post> postList = new ArrayList<>();
+//    @Fetch(FetchMode.SUBSELECT)
+//    @OneToMany
+//    private List<Post> postList = new ArrayList<>();
 
 }

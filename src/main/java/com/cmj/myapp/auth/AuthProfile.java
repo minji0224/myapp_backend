@@ -9,8 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+/*
+JwtUtil에서 토큰 생성할때 사용
+AuthInterceptor에서 AuthProfile객체를 사용
+*/
 public class AuthProfile {
-    private long id;
-    private String email;
-    private String nickname;
+    private long id;         // User id
+    private String email;    // User email
+    private String nickname; // Profile nickname
 }

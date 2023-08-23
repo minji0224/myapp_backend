@@ -20,7 +20,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse
             , Object handler) throws Exception {
 
-        if(handler instanceof HandlerMethod) { // 현재 핸들러가 HTTP요청을 처리하는 메서드인지
+        if(handler instanceof HandlerMethod) { // 현재 핸들러가 HTTP요청을 처리하는 메서드인지(컨트롤러인지)
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Method method = handlerMethod.getMethod();
 
@@ -40,7 +40,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             }
 
             // 헤더에 인증토큰이 있으면 (인증코튼 및 페이로드(subject/claim)데이터 객체화하기)
-            // Jwt토큰을 컴증하고 AuthProfile을 생성한다.
+            // Jwt토큰을 검증하고 AuthProfile을 생성한다.
             AuthProfile authProfile = jwtUtil.validateToken(token.replace("Bearer ", ""));
 
             // 인증토큰이 안 맞을 때

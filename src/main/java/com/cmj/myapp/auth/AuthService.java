@@ -30,7 +30,7 @@ public class AuthService {
         User saveUser = userRepository.save(toSaveUser);
 
         Profile toSaveProfile = Profile.builder().username(signupRequest.getUsername())
-                .nickname(signupRequest.getUsername()).user(saveUser).build();
+                .nickname(signupRequest.getNickname()).user(saveUser).build();
 
         long profileId = profileRepository.save(toSaveProfile).getId();
         saveUser.setProfileId(profileId);

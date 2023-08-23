@@ -2,9 +2,7 @@ package com.cmj.myapp.post;
 
 import com.cmj.myapp.auth.Auth;
 import com.cmj.myapp.auth.AuthProfile;
-import com.cmj.myapp.auth.entity.Profile;
-import com.cmj.myapp.auth.entity.ProfileRepository;
-import com.cmj.myapp.auth.entity.UserRepository;
+import com.cmj.myapp.auth.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,11 +28,16 @@ public class PostController {
     @Autowired
     ProfileRepository profileRepository;
 
+//    @Auth
 //    @GetMapping
-//    public List<Post> getPostList() {
-//        List<Post> list = postRepository.findAll(Sort.by("no").ascending());
-//        return list;
+//    public ResponseEntity<Map<String, Object>> getPostList(@RequestAttribute AuthProfile authProfile) {
+//        System.out.println(authProfile);
+//        List<Post> list = postRepository.findPostByCreatorName(authProfile.getNickname());
+//        System.out.println(list);
+//        return null;
 //    }
+
+
 
     @GetMapping(value = "/paging")
     public Page<Post> getPostsPaging(@RequestParam int page, @RequestParam int size) {
@@ -50,39 +53,40 @@ public class PostController {
     @GetMapping(value = "/paging/searchByCreatorName")
     public Page<Post> getPostsPagingSearchCreatorName(
             @RequestParam int page, @RequestParam int size, @RequestParam String creatorName) {
-        System.out.println("작성자: " + page + ", " + size + ", " + creatorName+ "/");
+        System.out.println("작성자: " + page + ", " + size + ", " + creatorName + "/");
 
         Sort sort = Sort.by("no").descending();
-        PageRequest pageRequest =  PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
         return postRepository.findByCreatorNameContaining(creatorName, pageRequest);
     }
 
     @GetMapping(value = "/paging/searchByRestaurantName")
     public Page<Post> getPostsPagingSearchRestaurantName(
             @RequestParam int page, @RequestParam int size, @RequestParam String restaurantName) {
-        System.out.println("상호명: " + page + ", " + size+ ", " + restaurantName + "/");
+        System.out.println("상호명: " + page + ", " + size + ", " + restaurantName + "/");
 
         Sort sort = Sort.by("no").descending();
-        PageRequest pageRequest =  PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
         return postRepository.findByRestaurantNameContaining(restaurantName, pageRequest);
     }
 
     @GetMapping(value = "/paging/searchByLink")
     public Page<Post> getPostsPagingSearchLink(
             @RequestParam int page, @RequestParam int size, @RequestParam String link) {
-        System.out.println("주소: " + page + ", " + size + ", " + link+ "/");
+        System.out.println("주소: " + page + ", " + size + ", " + link + "/");
 
         Sort sort = Sort.by("no").descending();
-        PageRequest pageRequest =  PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
         return postRepository.findByLinkContaining(link, pageRequest);
     }
 
     @Auth
     @PostMapping // 로그인 해야만 글 쓸 수 있게 수정하기
-    public ResponseEntity<Map<String, Object>> addPost(@RequestBody Post post, @RequestAttribute("authProfile") AuthProfile authProfile) {
-        System.out.println("게시물추가: " + post.getNo());
-        System.out.println("게시물추가: " + post.getCreatorName());
-        System.out.println("게시물추가: " + post.getRestaurantName());
+//    <Map<String, Object>>
+    public ResponseEntity addPost(@RequestBody Post post, @RequestAttribute("authProfile") AuthProfile authProfile) {
+        System.out.println("게시물추가 no: " + post.getNo());
+        System.out.println("게시물추가 link: " + post.getLink());
+        System.out.println("게시물추가 restuarantName: " + post.getRestaurantName());
         System.out.println("게시물추가: " + authProfile);
 
 
@@ -93,9 +97,21 @@ public class PostController {
 
         post.setCreatedTime(new Date().getTime());
         post.setCreatorName(authProfile.getNickname());
-        post.setProfileId(authProfile.getId());
+
+        Optional<Profile> isverityProfile = profileRepository.findByUser_Id(authProfile.getId());
+        if(!isverityProfile.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        post.setProfile(isverityProfile.get());
+
+
+
+        System.out.println("set한 post객체 "+ post);
+
 
         Post savedPost = postRepository.save(post);
+
 
         if(savedPost != null) {
             return  ResponseEntity.status(HttpStatus.CREATED).build();
@@ -103,3 +119,5 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 }
+
+

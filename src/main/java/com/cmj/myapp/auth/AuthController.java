@@ -33,9 +33,10 @@ public class AuthController {
 //    @Autowired
 //    private AuthProfile authProfile;
 
-    @PostMapping(value = "/doublecheck") // 이메일 중복체크 함수
-    public ResponseEntity doubleCheck(@RequestBody String email) {
+    @PostMapping(value = "/{email}") // 이메일 중복체크 함수
+    public ResponseEntity doubleCheck(@PathVariable String email) {
         System.out.println("회원가입 중복된 이메일 확인: " + email);
+        System.out.println(userRepository.findByEmail(email));
 
         // 해당 email 존재하는지
         if(userRepository.findByEmail(email).isPresent()) {
@@ -55,10 +56,10 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        // 이메일 중복될 때
-//        if(authProfile.getEmail() == signupRequest.getEmail()) {
-//            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-//        }
+        // 이메일 중복 검사
+        if(userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
 
         long profileId = authService.createIdentity(signupRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
