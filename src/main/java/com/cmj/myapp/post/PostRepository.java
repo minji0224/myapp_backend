@@ -16,7 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "select * from post where no = :no", nativeQuery = true)
     Optional<Post> findPostByNo(Long no);
     @Query(value = "select * from post where creator_name = :creatorName", nativeQuery = true)
-    List<Post> findPostByCreatorName(String creatorName);
+    Optional<List<Post>> findPostByCreatorName(String creatorName);
 
 
     Page<Post> findByCreatorNameContaining(String creatorName, Pageable pageable);
