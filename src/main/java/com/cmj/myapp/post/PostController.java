@@ -25,6 +25,19 @@ public class PostController {
     @Autowired
     ProfileRepository profileRepository;
 
+    @GetMapping(value = "/{postNo}")
+    public ResponseEntity getPost(@PathVariable long postNo) {
+        System.out.println(postNo);
+        Optional<Post> findedPost = postRepository.findPostByNo(postNo);
+
+        if(!findedPost.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(findedPost.get());
+            // ok아님~ 수정하기.
+        }
+    }
+
     @Auth
     @GetMapping
     public ResponseEntity<Map<String, Object>> getPostList(@RequestAttribute AuthProfile authProfile) {
@@ -136,11 +149,42 @@ public class PostController {
             if(!postRepository.findPostByNo(Long.valueOf(postNo)).isPresent()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-//            postRepository.deleteById(Long.valueOf(postNo));
+            postRepository.deleteById(Long.valueOf(postNo));
             System.out.println(Long.valueOf(postNo));
         }
         return  ResponseEntity.status(HttpStatus.OK).build();
+    }
 
+    @PutMapping(value = "/{postNo}")
+    public ResponseEntity modifyPost(@PathVariable long postNo, @RequestBody PostModifyRequest postModifyRequest) {
+        System.out.println("들어온 포스트넘버: " + postNo);
+//        System.out.println("들어온 포스트수정객체: " + postModifyRequest);
+
+        Optional<Post> findedPost = postRepository.findById(postNo);
+//        System.out.println("해당 넘버 있는지 확인 객체: " + findedPost);
+
+        if(!findedPost.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        Post toModifyPost = findedPost.get();
+//        System.out.println("해당 포스트 겟: " + toModifyPost);
+
+        if(postModifyRequest.getRestaurantName() != null && !postModifyRequest.getRestaurantName().isEmpty()) {
+            toModifyPost.setRestaurantName(postModifyRequest.getRestaurantName());
+        }
+        if(postModifyRequest.getLink() != null && !postModifyRequest.getLink().isEmpty()) {
+            toModifyPost.setLink(postModifyRequest.getLink());
+        }
+        if(postModifyRequest.getContent() != null && !postModifyRequest.getContent().isEmpty()) {
+            toModifyPost.setContent(postModifyRequest.getContent());
+        }
+        if(postModifyRequest.getImage() != null && !postModifyRequest.getImage().isEmpty()) {
+            toModifyPost.setImage(postModifyRequest.getImage());
+        }
+
+        postRepository.save(toModifyPost);
+        return ResponseEntity.ok().build();
     }
 }
 
