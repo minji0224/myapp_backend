@@ -25,16 +25,20 @@ public class PostController {
     @Autowired
     ProfileRepository profileRepository;
 
+    @Auth
     @GetMapping(value = "/{postNo}")
-    public ResponseEntity getPost(@PathVariable long postNo) {
+    public ResponseEntity getPost(@PathVariable long postNo, @RequestAttribute AuthProfile authProfile) {
         System.out.println(postNo);
         Optional<Post> findedPost = postRepository.findPostByNo(postNo);
 
         if(!findedPost.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } else {
+        }
+
+        if(findedPost.get().getCreatorName().equals(authProfile.getNickname())){
             return ResponseEntity.status(HttpStatus.OK).body(findedPost.get());
-            // ok아님~ 수정하기.
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(findedPost.get());
         }
     }
 
@@ -139,35 +143,50 @@ public class PostController {
 
     @Auth
     @DeleteMapping
-    // 리퀘스트 객체로 받아와서 post no랑 닉네임이랑 비교해서 삭제하는게 낫지 않나?
-    // 왜냐믄 지금은 어스프로필을 사용못하고있음.. 나중에 수정하긔
     public ResponseEntity removePost(@RequestParam List<Integer> nos, @RequestAttribute("authProfile") AuthProfile authProfile) {
         System.out.println(authProfile);
         System.out.println(nos);
 
         for(Integer postNo : nos) {
-            if(!postRepository.findPostByNo(Long.valueOf(postNo)).isPresent()){
+            Optional<Post> postOptional = postRepository.findPostByNo(Long.valueOf(postNo));
+            if(!postOptional.isPresent()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-            postRepository.deleteById(Long.valueOf(postNo));
-            System.out.println(Long.valueOf(postNo));
+
+            Post post = postOptional.get();
+            System.out.println(post.getCreatorName());
+            System.out.println(authProfile.getNickname());
+            if(post.getCreatorName().equals(authProfile.getNickname())){
+                postRepository.deleteById(Long.valueOf(postNo));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
         }
-        return  ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Auth
     @PutMapping(value = "/{postNo}")
-    public ResponseEntity modifyPost(@PathVariable long postNo, @RequestBody PostModifyRequest postModifyRequest) {
+    public ResponseEntity modifyPost(@PathVariable long postNo, @RequestBody PostModifyRequest postModifyRequest
+                                        ,@RequestAttribute("authProfile") AuthProfile authProfile) {
         System.out.println("들어온 포스트넘버: " + postNo);
 //        System.out.println("들어온 포스트수정객체: " + postModifyRequest);
 
         Optional<Post> findedPost = postRepository.findById(postNo);
-//        System.out.println("해당 넘버 있는지 확인 객체: " + findedPost);
+        System.out.println("해당 넘버 있는지 확인 객체: " + findedPost);
 
         if(!findedPost.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
+
         Post toModifyPost = findedPost.get();
+        System.out.println(toModifyPost.getCreatorName());
+        System.out.println(authProfile.getNickname());
+
+        if(!toModifyPost.getCreatorName().equals(authProfile.getNickname())){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 //        System.out.println("해당 포스트 겟: " + toModifyPost);
 
         if(postModifyRequest.getRestaurantName() != null && !postModifyRequest.getRestaurantName().isEmpty()) {
