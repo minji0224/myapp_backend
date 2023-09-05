@@ -1,12 +1,15 @@
 package com.cmj.myapp.auth;
 
 import com.cmj.myapp.auth.entity.User;
-import com.cmj.myapp.auth.entity.UserRepository;
+import com.cmj.myapp.auth.repository.UserRepository;
 import com.cmj.myapp.auth.entity.Profile;
-import com.cmj.myapp.auth.entity.ProfileRepository;
+import com.cmj.myapp.auth.repository.ProfileRepository;
 import com.cmj.myapp.auth.request.SignupRequest;
 import com.cmj.myapp.auth.util.HashUtil;
 import com.cmj.myapp.auth.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Optional;
 
+@Tag(name = "인증 관련 API")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -30,9 +34,8 @@ public class AuthController {
     private AuthService authService;
     @Autowired
     private JwtUtil jwtUtil;
-//    @Autowired
-//    private AuthProfile authProfile;
 
+    @Operation(summary = "회원가입 진행 중 이메일 중복 체크")
     @PostMapping(value = "/{email}") // 이메일 중복체크 함수
     public ResponseEntity doubleCheck(@PathVariable String email) {
         System.out.println("회원가입 중복된 이메일 확인: " + email);
@@ -45,8 +48,9 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "회원가입 진행 완료")
     @PostMapping(value = "/signup")
-    public ResponseEntity signUp(@RequestBody SignupRequest signupRequest) { // 리퀘스트어노테이션 뭘 사용해야되지
+    public ResponseEntity signUp(@RequestBody SignupRequest signupRequest) {
 
         System.out.println("회원가입버튼으로 들어온 사인업객체: "+ signupRequest);
         if(signupRequest.getEmail() == null || signupRequest.getEmail().isEmpty()
@@ -65,6 +69,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "로그인")
     @PostMapping(value = "/signin")
     public ResponseEntity signIn (@RequestParam String email, @RequestParam String password
     , HttpServletResponse httpResponse) {

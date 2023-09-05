@@ -1,9 +1,9 @@
 package com.cmj.myapp.auth;
 
 import com.cmj.myapp.auth.entity.User;
-import com.cmj.myapp.auth.entity.UserRepository;
+import com.cmj.myapp.auth.repository.UserRepository;
 import com.cmj.myapp.auth.entity.Profile;
-import com.cmj.myapp.auth.entity.ProfileRepository;
+import com.cmj.myapp.auth.repository.ProfileRepository;
 import com.cmj.myapp.auth.request.SignupRequest;
 import com.cmj.myapp.auth.util.HashUtil;
 import jakarta.transaction.Transactional;

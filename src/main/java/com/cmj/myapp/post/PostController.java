@@ -3,6 +3,11 @@ package com.cmj.myapp.post;
 import com.cmj.myapp.auth.Auth;
 import com.cmj.myapp.auth.AuthProfile;
 import com.cmj.myapp.auth.entity.*;
+import com.cmj.myapp.auth.repository.ProfileRepository;
+import com.cmj.myapp.auth.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,17 +19,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Tag(name = "게시물 관리 API")
 @RestController
 @RequestMapping(value = "/posts")
 public class PostController {
     Map<String, Post> map = new ConcurrentHashMap<>();
     @Autowired
     PostRepository postRepository;
-    @Autowired
-    UserRepository userRepository;
+//    @Autowired
+//    UserRepository userRepository;
     @Autowired
     ProfileRepository profileRepository;
 
+    @Operation(summary = "수정할 해당 게시물 조회", security = { @SecurityRequirement(name = "bearer-key") })
     @Auth
     @GetMapping(value = "/{postNo}")
     public ResponseEntity getPost(@PathVariable long postNo, @RequestAttribute AuthProfile authProfile) {
@@ -42,6 +49,7 @@ public class PostController {
         }
     }
 
+    @Operation(summary = "사용자가 등록한 게시물 조회", security = { @SecurityRequirement(name = "bearer-key") })
     @Auth
     @GetMapping
     public ResponseEntity<Map<String, Object>> getPostList(@RequestAttribute AuthProfile authProfile) {
@@ -67,7 +75,7 @@ public class PostController {
         return ResponseEntity.ok().body(responese);
     }
 
-
+    @Operation(summary = "게시물 목록 페이징 조회")
     @GetMapping(value = "/paging")
     public Page<Post> getPostsPaging(@RequestParam int page, @RequestParam int size) {
         System.out.println("첫화면: " + page + ", " + size + "/");
@@ -79,6 +87,7 @@ public class PostController {
         return postRepository.findAll(pageRequest);
     }
 
+    @Operation(summary = "작성자로 게시물 조회")
     @GetMapping(value = "/paging/searchByCreatorName")
     public Page<Post> getPostsPagingSearchCreatorName(
             @RequestParam int page, @RequestParam int size, @RequestParam String creatorName) {
@@ -89,6 +98,7 @@ public class PostController {
         return postRepository.findByCreatorNameContaining(creatorName, pageRequest);
     }
 
+    @Operation(summary = "상호명으로 게시물 조회")
     @GetMapping(value = "/paging/searchByRestaurantName")
     public Page<Post> getPostsPagingSearchRestaurantName(
             @RequestParam int page, @RequestParam int size, @RequestParam String restaurantName) {
@@ -99,6 +109,7 @@ public class PostController {
         return postRepository.findByRestaurantNameContaining(restaurantName, pageRequest);
     }
 
+    @Operation(summary = "식당 주소로 게시물 조회")
     @GetMapping(value = "/paging/searchByLink")
     public Page<Post> getPostsPagingSearchLink(
             @RequestParam int page, @RequestParam int size, @RequestParam String link) {
@@ -108,7 +119,7 @@ public class PostController {
         PageRequest pageRequest = PageRequest.of(page, size, sort);
         return postRepository.findByLinkContaining(link, pageRequest);
     }
-
+    @Operation(summary = "게시물 등록", security = { @SecurityRequirement(name = "bearer-key") })
     @Auth
     @PostMapping
     public ResponseEntity addPost(@RequestBody Post post, @RequestAttribute("authProfile") AuthProfile authProfile) {
@@ -140,15 +151,22 @@ public class PostController {
         }
         return ResponseEntity.ok().build();
     }
-
+    @Operation(summary = "게시물 삭제", security = { @SecurityRequirement(name = "bearer-key") })
     @Auth
     @DeleteMapping
     public ResponseEntity removePost(@RequestParam List<Integer> nos, @RequestAttribute("authProfile") AuthProfile authProfile) {
         System.out.println(authProfile);
         System.out.println(nos);
+        System.out.println(nos.isEmpty());
+
+        if(nos.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         for(Integer postNo : nos) {
+
             Optional<Post> postOptional = postRepository.findPostByNo(Long.valueOf(postNo));
+
             if(!postOptional.isPresent()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
@@ -162,9 +180,10 @@ public class PostController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
         }
+
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
+    @Operation(summary = "게시물 수정", security = { @SecurityRequirement(name = "bearer-key") })
     @Auth
     @PutMapping(value = "/{postNo}")
     public ResponseEntity modifyPost(@PathVariable long postNo, @RequestBody PostModifyRequest postModifyRequest
@@ -205,6 +224,7 @@ public class PostController {
         postRepository.save(toModifyPost);
         return ResponseEntity.ok().build();
     }
+
 }
 
 

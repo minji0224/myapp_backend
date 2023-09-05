@@ -30,7 +30,6 @@ public class Post {
     @Column(length = 1024 * 1024 *20) // 문자열20메가바이트저장가능
     private String image;
     private long createdTime;
-//    private int likeCnt;
 
     @ManyToOne  // fetch를 레이지로 하니깐 콘솔에 청크에러 뜸
     @JoinColumn(name = "profile_id")

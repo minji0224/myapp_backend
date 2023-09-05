@@ -1,5 +1,6 @@
-package com.cmj.myapp.auth.entity;
+package com.cmj.myapp.auth.repository;
 
+import com.cmj.myapp.auth.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
