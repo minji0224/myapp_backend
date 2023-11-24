@@ -12,7 +12,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,7 @@ import java.util.Optional;
 
 @Tag(name = "인증 관련 API")
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
     private UserRepository userRepository;
@@ -34,6 +36,13 @@ public class AuthController {
     private AuthService authService;
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Value("${app.cookie.domain}")     // dev.properties
+    private String cookieDomain;
+    @Value("${app.login.url}")
+    private String loginUrl;
+    @Value("${app.home.url}")
+    private String homeUrl;
 
     @Operation(summary = "회원가입 진행 중 이메일 중복 체크")
     @PostMapping(value = "/{email}") // 이메일 중복체크 함수
@@ -101,6 +110,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
+        System.out.println("--------------------------------");
+
         String token = jwtUtil.createToken(log.getId(), log.getEmail(), profile.get().getNickname());
         System.out.println("token: " + token);
 
@@ -108,13 +119,13 @@ public class AuthController {
         Cookie cookie = new Cookie("token", token);
         cookie.setPath(("/"));
         cookie.setMaxAge((int)(jwtUtil.TOKEN_TIMEOUT/1000L));
-        cookie.setDomain("localhost");
+        cookie.setDomain(cookieDomain);
 
         httpResponse.addCookie(cookie);
         System.out.println("응답: " +httpResponse);
 
         return ResponseEntity.status(HttpStatus.FOUND).location(ServletUriComponentsBuilder
-                        .fromHttpUrl("http://localhost:5500").build().toUri()).build();
+                        .fromHttpUrl(homeUrl).build().toUri()).build();
         // 유저가 로그인한 후 해당 url로 리다이렉션
     }
 }

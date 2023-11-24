@@ -21,13 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Tag(name = "게시물 관리 API")
 @RestController
-@RequestMapping(value = "/posts")
+@RequestMapping(value = "/api/posts")
 public class PostController {
     Map<String, Post> map = new ConcurrentHashMap<>();
     @Autowired
     PostRepository postRepository;
-//    @Autowired
-//    UserRepository userRepository;
     @Autowired
     ProfileRepository profileRepository;
 
@@ -119,6 +117,8 @@ public class PostController {
         PageRequest pageRequest = PageRequest.of(page, size, sort);
         return postRepository.findByLinkContaining(link, pageRequest);
     }
+
+
     @Operation(summary = "게시물 등록", security = { @SecurityRequirement(name = "bearer-key") })
     @Auth
     @PostMapping

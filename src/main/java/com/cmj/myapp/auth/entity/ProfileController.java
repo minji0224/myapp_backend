@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 @Tag(name = "프로필 관리 API")
 @RestController
-@RequestMapping(value = "/profile")
+@RequestMapping(value = "/api/profile")
 public class ProfileController {
     @Autowired
     ProfileRepository profileRepository;

@@ -1,4 +1,4 @@
-package com.cmj.myapp.auth.configuration;
+package com.cmj.myapp.auth;
 
 import com.cmj.myapp.auth.util.HashUtil;
 import com.cmj.myapp.auth.util.JwtUtil;
